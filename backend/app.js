@@ -7,6 +7,7 @@ const logger = require('morgan');
 const app = express();
 const formatsLogger = app.get('env') === 'development' ? 'dev' : 'short';
 const usersRouter = require('./routes/api/user.routes');
+const transactionsRouter = require('./routes/api/transaction.routes');
 
 app.use(logger(formatsLogger));
 app.use(cors());
@@ -14,6 +15,7 @@ app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use('/api/users', usersRouter);
+app.use('/api/transaction', transactionsRouter);
 
 app.use(function (req, res, next) {
     next(createError(404));
