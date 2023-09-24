@@ -8,7 +8,12 @@ const getTransactionById = async (transactionId) => {
     return Transaction.findOne({transactionId});
 }
 
+const getUsersTransactions = async (userId) => {
+    return Transaction.find({userId});
+}
+
 module.exports = {
     addTransaction,
-    getTransactionById
+    getTransactionById,
+    getUsersTransactions
 }
