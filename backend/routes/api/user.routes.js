@@ -6,11 +6,13 @@ require('dotenv').config()
 const secret = process.env.SECRET
 const auth = require("../../middlewares/auth");
 const {
-    findUser,
+    findUserByEmail,
     registerUser,
     authenticateUser,
     setToken,
+    findUserById
 } = require("../../controllers/user.controller")
+const {getUsersTransactions} = require("../../controllers/transaction.controller")
 
 const userJoiSchema = Joi.object({
     email: Joi.string().email().required(),
@@ -33,7 +35,7 @@ router.post('/register', async (req, res, next) => {
             return;
         }
         const {email, password} = value;
-        const existingUser = await findUser(email);
+        const existingUser = await findUserByEmail(email);
         if (existingUser) {
             res.status(400).json({
                 status: 'Conflict',
@@ -66,7 +68,7 @@ router.post('/login', async (req, res, next) => {
             })
         }
         const {email, password} = value;
-        const user = await findUser(email);
+        const user = await findUserByEmail(email);
         const userAuth = await authenticateUser(email, password);
         if (userAuth) {
             const payload = {
@@ -79,9 +81,9 @@ router.post('/login', async (req, res, next) => {
                 status: 'success',
                 code: 200,
                 data: {
-                    'ID':user._id,
+                    'ID': user._id,
                     'email': user.email,
-                    'token':token,
+                    'token': token,
                 },
             })
         } else {
@@ -107,6 +109,59 @@ router.get('/logout', auth, async (req, res, next) => {
             message: `Successfully logged out user: ${email}`,
         },
     })
+})
+
+router.get('/:userId/transactions', auth, async (req, res, next) => {
+    try {
+        const {userId} = req.query;
+        const user = await findUserById(userId);
+        if (!user) {
+            res.json({
+                status: 'Failure',
+                code: 404,
+                message: 'User not found'
+            })
+        } else {
+            const transactions = await getUsersTransactions(userId);
+            if (!transactions) {
+                res.json({
+                    status: 'Failure',
+                    code: 400,
+                    message: 'User has no transactions in his history'
+                })
+            } else {
+                res.json({
+                    status: 'Success',
+                    code: 200,
+                    data: transactions
+                })
+            }
+        }
+    } catch (err) {
+        next(err);
+    }
+})
+
+router.get('/:userId', auth, async (req, res, next) => {
+    try {
+        const {userId} = req.query;
+        const user = await findUserById(userId);
+        if (!user) {
+            res.json({
+                status: 'Not Found',
+                code: 404,
+                message: 'User not found'
+            })
+        } else {
+            res.json({
+                status: 'OK',
+                code: 200,
+                data: user
+            })
+        }
+    } catch (err) {
+        next(err);
+    }
 })
 
 module.exports = router;
