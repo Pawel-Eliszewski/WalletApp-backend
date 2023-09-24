@@ -1,8 +1,13 @@
 const User = require('../schemas/user.schema');
 
-const findUser = async (email) => {
+const findUserByEmail = async (email) => {
     return User.findOne({email});
 }
+
+const findUserById = async (userId) => {
+    return User.findOne({userId});
+}
+
 const registerUser = async (email, password) => {
     return User.create({email, password});
 }
@@ -16,8 +21,9 @@ const setToken = async (email, token) => {
 }
 
 module.exports = {
-    findUser,
+    findUserByEmail,
     registerUser,
     authenticateUser,
     setToken,
+    findUserById
 }
