@@ -16,6 +16,10 @@ const UserSchema = new Schema({
         type: String,
         default: null,
     },
+    balance: {
+        type: Number,
+        default: 0,
+    }
 })
 
 UserSchema.methods.setPassword = function (password) {

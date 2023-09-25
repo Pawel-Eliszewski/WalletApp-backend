@@ -2,7 +2,6 @@ const express = require('express')
 const Joi = require('joi');
 const router = express.Router()
 const jwt = require('jsonwebtoken')
-const User = require('../../schemas/user.schema');
 require('dotenv').config()
 const secret = process.env.SECRET
 const auth = require("../../middlewares/auth");
@@ -80,7 +79,9 @@ router.post('/login', async (req, res, next) => {
                 status: 'success',
                 code: 200,
                 data: {
-                    token,
+                    'ID':user._id,
+                    'email': user.email,
+                    'token':token,
                 },
             })
         } else {
