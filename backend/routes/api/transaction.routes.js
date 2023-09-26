@@ -1,18 +1,30 @@
-const express = require('express')
-const router = express.Router()
-require('dotenv').config()
+const express = require('express');
+const router = express.Router();
+require('dotenv').config();
 const auth = require("../../middlewares/auth");
-const {addTransaction, getTransactionById} = require('../../controllers/transaction.controller')
-
+const {addTransaction, getTransactionById} = require('../../controllers/transaction.controller');
+const {handleUserBalance, getUserBalance} = require('../../controllers/user.controller');
 router.post('/', auth, async (req, res, next) => {
     try {
         const {type, category, amount, date, comment, owner} = req.body;
         const createdTransaction = await addTransaction(type, category, amount, date, comment, owner);
-        res.json({
-            status: 'Success',
-            code: 200,
-            data: createdTransaction._id
-        })
+        if (type === 'income' || type === 'expense') {
+            await handleUserBalance(type, amount, owner);
+            const balance = await getUserBalance(owner);
+            res.json({
+                status: 'Success',
+                code: 200,
+                transactionID: createdTransaction._id,
+                userBalance: balance
+            })
+        } else {
+            res.json({
+                status: 'Failure',
+                code: 400,
+                message: 'Wrong transaction type'
+            })
+        }
+
     } catch (err) {
         next(err);
     }
