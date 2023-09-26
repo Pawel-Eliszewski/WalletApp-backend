@@ -10,9 +10,12 @@ const {
     registerUser,
     authenticateUser,
     setToken,
-    findUserById
+    findUserById,
 } = require("../../controllers/user.controller")
-const {getUsersTransactions} = require("../../controllers/transaction.controller")
+const {
+    getUsersTransactions,
+    getUserStatisticsByDate,
+} = require("../../controllers/transaction.controller")
 
 const userJoiSchema = Joi.object({
     email: Joi.string().email().required(),
@@ -157,6 +160,30 @@ router.get('/:userId', auth, async (req, res, next) => {
                 status: 'OK',
                 code: 200,
                 data: user
+            })
+        }
+    } catch (err) {
+        next(err);
+    }
+})
+
+router.get('/:userId/statistics', auth, async (req, res, next) => {
+    try {
+        const {userId} = req.query;
+        const {transactionsDate} = req.body;
+        const user = await findUserById(userId);
+        if (!user) {
+            res.json({
+                status: 'Not Found',
+                code: 404,
+                message: 'User not found'
+            })
+        } else {
+            const transactions = await getUserStatisticsByDate(userId, transactionsDate);
+            res.json({
+                status: 'OK',
+                code: 200,
+                data: transactions
             })
         }
     } catch (err) {
