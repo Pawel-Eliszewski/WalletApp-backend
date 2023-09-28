@@ -4,18 +4,18 @@ const router = express.Router()
 const jwt = require('jsonwebtoken')
 require('dotenv').config()
 const secret = process.env.SECRET
-const auth = require("../../middlewares/auth");
+const auth = require("../middlewares/auth");
 const {
     findUserByEmail,
     registerUser,
     authenticateUser,
     setToken,
     findUserById,
-} = require("../../controllers/user.controller")
+} = require("../controllers/user.controller")
 const {
     getUsersTransactions,
     getUserStatisticsByDate,
-} = require("../../controllers/transaction.controller")
+} = require("../controllers/transaction.controller")
 
 const userJoiSchema = Joi.object({
     email: Joi.string().email().required(),
@@ -24,6 +24,32 @@ const userJoiSchema = Joi.object({
         .min(4)
         .required(),
 });
+
+/**
+ * @swagger
+ * /user/register:
+ *   post:
+ *     summary: Register a new user
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *               password:
+ *                 type: string
+ *                 minLength: 4
+ *     responses:
+ *       '201':
+ *         description: User registered successfully
+ *       '400':
+ *         description: Bad Request, validation error or email in use
+ */
 
 router.post('/register', async (req, res, next) => {
     try {
@@ -58,6 +84,32 @@ router.post('/register', async (req, res, next) => {
         next(err);
     }
 })
+
+/**
+ * @swagger
+ * /user/login:
+ *   post:
+ *     summary: Login to the application
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *               password:
+ *                 type: string
+ *                 minLength: 4
+ *     responses:
+ *       '200':
+ *         description: User logged in successfully
+ *       '400':
+ *         description: Bad Request, validation error or authentication failed
+ */
 
 router.post('/login', async (req, res, next) => {
     try {
@@ -102,6 +154,19 @@ router.post('/login', async (req, res, next) => {
     }
 })
 
+/**
+ * @swagger
+ * /user/logout:
+ *   get:
+ *     summary: Logout the authenticated user
+ *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       '200':
+ *         description: User logged out successfully
+ */
+
 router.get('/logout', auth, async (req, res, next) => {
     const {email} = req.user;
     await setToken(email, null);
@@ -113,6 +178,30 @@ router.get('/logout', auth, async (req, res, next) => {
         },
     })
 })
+
+/**
+ * @swagger
+ * /user/{userId}/transactions:
+ *   get:
+ *     summary: Get transactions for a user by user ID
+ *     tags: [Transactions]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: User ID
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       '200':
+ *         description: Transactions retrieved successfully
+ *       '400':
+ *         description: Bad Request, user has no transactions
+ *       '404':
+ *         description: User not found
+ */
 
 router.get('/:userId/transactions', auth, async (req, res, next) => {
     try {
@@ -145,6 +234,28 @@ router.get('/:userId/transactions', auth, async (req, res, next) => {
     }
 })
 
+/**
+ * @swagger
+ * /user/{userId}:
+ *   get:
+ *     summary: Get user details by user ID
+ *     tags: [User]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: User ID
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       '200':
+ *         description: User details retrieved successfully
+ *       '404':
+ *         description: User not found
+ */
+
 router.get('/:userId', auth, async (req, res, next) => {
     try {
         const {userId} = req.query;
@@ -166,6 +277,34 @@ router.get('/:userId', auth, async (req, res, next) => {
         next(err);
     }
 })
+
+/**
+ * @swagger
+ * /user/{userId}/statistics:
+ *   get:
+ *     summary: Get user statistics by user ID and date
+ *     tags: [Statistics]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: User ID
+ *       - in: query
+ *         name: transactionsDate
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Date for which to retrieve statistics
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       '200':
+ *         description: User statistics retrieved successfully
+ *       '404':
+ *         description: User not found
+ */
 
 router.get('/:userId/statistics', auth, async (req, res, next) => {
     try {
