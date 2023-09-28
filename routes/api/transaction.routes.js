@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 require('dotenv').config();
 const auth = require("../../middlewares/auth");
-const {addTransaction, getTransactionById} = require('../../controllers/transaction.controller');
+const {addTransaction, getTransactionById, updateTransaction} = require('../../controllers/transaction.controller');
 const {handleUserBalance, getUserBalance} = require('../../controllers/user.controller');
 router.post('/', auth, async (req, res, next) => {
     try {
@@ -45,6 +45,28 @@ router.get('/category/:transactionId', auth, async (req, res, next) => {
                 status: "Not found",
                 code: 404,
                 message: "Given transaction does not exist"
+            })
+        }
+    } catch (err) {
+        next(err);
+    }
+})
+
+router.patch('/', auth, async (req, res, next) => {
+    try {
+        const {transactionId, type, category, amount, date, comment, owner} = req.body;
+        const updateResult = await updateTransaction(transactionId, type, category, amount, date, comment, owner);
+        if (updateResult.nModified > 0) {
+            res.json({
+                status: 'Success',
+                code: 200,
+                message: 'Transaction updated successfully'
+            })
+        } else {
+            res.json({
+                status: 'Failure',
+                code: 400,
+                message: 'Transaction not found or not updated'
             })
         }
     } catch (err) {
