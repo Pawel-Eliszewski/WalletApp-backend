@@ -4,20 +4,24 @@ const addTransaction = async (type, category, amount, date, comment, owner) => {
     return Transaction.create({type, category, amount, date, comment, owner});
 }
 
+const deleteTransaction = async (transactionId) => {
+    return Transaction.findOneAndDelete({_id: transactionId})
+}
+
 const updateTransaction = async (transactionId, type, category, amount, date, comment, owner) => {
     return Transaction.updateOne({_id: transactionId},{type, category, amount, date, comment, owner});
 }
 
 const getTransactionById = async (transactionId) => {
-    return Transaction.findOne({transactionId});
+    return Transaction.findOne({_id: transactionId});
 }
 
-const getUsersTransactions = async (userId) => {
+const getUserTransactions = async (userId) => {
     return Transaction.find({userId});
 }
 
 const getUserStatisticsByDate = async (userId, transactionsDate) => {
-    const transactions = await getUsersTransactions(userId);
+    const transactions = await getUserTransactions(userId);
     const transactionsFilteredByDate = transactions.filter(transaction => {
         const transactionDate = new Date(transaction.date);
         const transactionYear = transactionDate.getFullYear();
@@ -41,7 +45,8 @@ const getUserStatisticsByDate = async (userId, transactionsDate) => {
 module.exports = {
     addTransaction,
     getTransactionById,
-    getUsersTransactions,
+    getUsersTransactions: getUserTransactions,
     getUserStatisticsByDate,
     updateTransaction,
+    deleteTransaction,
 }

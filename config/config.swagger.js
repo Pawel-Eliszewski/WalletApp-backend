@@ -26,7 +26,7 @@ const swaggerOptions = {
                 '- `/user/login` (POST): Log in to the application and receive an authentication token.\n' +
                 '- `/user/logout` (GET): Log out the authenticated user.\n' +
                 '- `/user/{userId}/transactions` (GET): Get a list of transactions for a specific user.\n' +
-                '- `/user/{userId}` (GET): Get user details by user ID.\n' +
+                '- `/user/current` (GET): Authenticates user, returns his data.\n' +
                 '- `/user/{userId}/statistics` (GET): Get financial statistics for a specific user and date range.\n' +
                 '- `/transaction` (POST, PATCH, GET): Add a new transaction, update an existing transaction, or get a specific transaction by ID.\n' +
                 '\n' +

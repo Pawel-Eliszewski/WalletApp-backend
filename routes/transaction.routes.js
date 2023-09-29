@@ -2,7 +2,12 @@ const express = require('express');
 const router = express.Router();
 require('dotenv').config();
 const auth = require("../middlewares/auth");
-const {addTransaction, getTransactionById, updateTransaction} = require('../controllers/transaction.controller');
+const {
+    addTransaction,
+    getTransactionById,
+    updateTransaction,
+    deleteTransaction
+} = require('../controllers/transaction.controller');
 const {handleUserBalance, getUserBalance} = require('../controllers/user.controller');
 
 /**
@@ -78,6 +83,51 @@ router.post('/', auth, async (req, res, next) => {
             })
         }
 
+    } catch (err) {
+        next(err);
+    }
+})
+
+/**
+ * @swagger
+ * /:transactionId:
+ *   delete:
+ *      summary: Delete transaction
+ *      tags: [Transactions]
+ *      parameters:
+ *          - in: query
+ *            name: transactionId
+ *            schema:
+ *              type: object
+ *            required: true
+ *            description: Transaction unique ID
+ *      security:
+ *          - bearerAuth: []
+ *      responses:
+ *          '200':
+ *            description: Transaction removed successfully
+ *          '404':
+ *            description: Transaction does not exist
+ */
+
+router.delete('/:transactionId', auth, async (req, res, next) => {
+    try {
+        const {transactionId} = req.params;
+        const transaction = await getTransactionById(transactionId);
+        if (transaction) {
+            await deleteTransaction(transactionId);
+            res.json({
+                status: 'OK',
+                code: 200,
+                message: 'Transaction deleted'
+            })
+        } else {
+            res.json({
+                status: 'Failure',
+                code: 404,
+                message: 'Transaction not found'
+            })
+        }
     } catch (err) {
         next(err);
     }
