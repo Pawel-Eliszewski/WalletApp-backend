@@ -157,6 +157,32 @@ router.post('/login', async (req, res, next) => {
 
 /**
  * @swagger
+ * /user/current:
+ *   get:
+ *     summary: Current user
+ *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       '200':
+ *         description: User authenticated, showing email and balance
+ */
+
+router.get('/current', auth, async (req, res, next) => {
+    try {
+        const user = req.user;
+        res.json({
+            status: 'Success',
+            code: 200,
+            data: user
+        })
+    } catch (err) {
+        next(err);
+    }
+})
+
+/**
+ * @swagger
  * /user/logout:
  *   get:
  *     summary: Logout the authenticated user
@@ -229,50 +255,6 @@ router.get('/:userId/transactions', auth, async (req, res, next) => {
                     data: transactions
                 })
             }
-        }
-    } catch (err) {
-        next(err);
-    }
-})
-
-/**
- * @swagger
- * /user/{userId}:
- *   get:
- *     summary: Get user details by user ID
- *     tags: [User]
- *     parameters:
- *       - in: path
- *         name: userId
- *         schema:
- *           type: string
- *         required: true
- *         description: User ID
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       '200':
- *         description: User details retrieved successfully
- *       '404':
- *         description: User not found
- */
-
-router.get('/:userId', auth, async (req, res, next) => {
-    try {
-        const {userId} = req.query;
-        const user = await findUserById(userId);
-        if (!user) {
-            res.json({
-                status: 'Not Found',
-                code: 404,
-                message: 'User not found'
-            })
-        } else {
-            res.json({
-                status: 'OK',
-                code: 200,
-                data: user
-            })
         }
     } catch (err) {
         next(err);
