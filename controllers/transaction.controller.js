@@ -4,6 +4,10 @@ const addTransaction = async (type, category, amount, date, comment, owner) => {
     return Transaction.create({type, category, amount, date, comment, owner});
 }
 
+const updateTransaction = async (transactionId, type, category, amount, date, comment, owner) => {
+    return Transaction.updateOne({_id: transactionId},{type, category, amount, date, comment, owner});
+}
+
 const getTransactionById = async (transactionId) => {
     return Transaction.findOne({transactionId});
 }
@@ -39,4 +43,5 @@ module.exports = {
     getTransactionById,
     getUsersTransactions,
     getUserStatisticsByDate,
+    updateTransaction,
 }
