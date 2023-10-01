@@ -5,7 +5,7 @@ const findUserByEmail = async (email) => {
 }
 
 const findUserById = async (userId) => {
-    return User.findOne({_id: userId});
+    return User.findOne({id: userId});
 }
 
 const registerUser = async (email, password) => {
