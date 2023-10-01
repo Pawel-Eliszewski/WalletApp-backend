@@ -125,7 +125,8 @@ router.delete('/:transactionId', auth, async (req, res, next) => {
             res.json({
                 status: 'OK',
                 code: 200,
-                message: 'Transaction deleted'
+                data: { _id: transactionId },
+                message: 'Transaction deleted',
             })
         } else {
             res.json({
