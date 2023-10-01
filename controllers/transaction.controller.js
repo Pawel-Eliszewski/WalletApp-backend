@@ -1,5 +1,5 @@
 const Transaction = require('../schemas/transaction.schema');
-
+const mongoose = require("mongoose");
 const addTransaction = async (type, category, amount, date, comment, owner) => {
     return Transaction.create({type, category, amount, date, comment, owner});
 }
@@ -17,7 +17,8 @@ const getTransactionById = async (transactionId) => {
 }
 
 const getUserTransactions = async (userId) => {
-    return Transaction.find({userId});
+    const userIdToObjectId = new mongoose.Types.ObjectId(userId);
+    return Transaction.find({owner: userIdToObjectId});
 }
 
 const getUserStatisticsByDate = async (userId, transactionsDate) => {

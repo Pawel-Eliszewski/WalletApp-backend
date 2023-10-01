@@ -7,7 +7,9 @@ const findUserByEmail = async (email) => {
 const findUserById = async (userId) => {
     return User.findOne({id: userId});
 }
-
+const findUserByIdForTransaction = async (userId) => {
+    return User.findOne({_id: userId});
+}
 const registerUser = async (email, password) => {
     return User.create({email, password});
 }
@@ -21,7 +23,7 @@ const setToken = async (email, token) => {
 }
 
 const handleUserBalance = async (type, amount, owner) => {
-    const user = await findUserById(owner);
+    const user = await findUserByIdForTransaction(owner);
     if (!user) {
         return {message: "User not found"};
     }
@@ -35,7 +37,7 @@ const handleUserBalance = async (type, amount, owner) => {
 };
 
 const getUserBalance = async (owner) => {
-    const user = await findUserById(owner);
+    const user = await findUserByIdForTransaction(owner);
     return user.balance;
 };
 
@@ -46,5 +48,6 @@ module.exports = {
     setToken,
     findUserById,
     handleUserBalance,
-    getUserBalance
+    getUserBalance,
+    findUserByIdForTransaction
 }
