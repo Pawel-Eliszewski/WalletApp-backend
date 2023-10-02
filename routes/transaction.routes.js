@@ -247,11 +247,12 @@ router.patch('/:transactionId', auth, async (req, res, next) => {
         const {transactionId} = req.params;
         const { type, category, amount, date, comment, owner} = req.body;
         const updateResult = await updateTransaction(transactionId, type, category, amount, date, comment, owner);
-        if (updateResult.nModified > 0) {
+        if (updateResult) {
             res.json({
                 status: 'Success',
                 code: 200,
-                message: 'Transaction updated successfully'
+                message: 'Transaction updated successfully',
+                data: updateResult
             })
         } else {
             res.json({
