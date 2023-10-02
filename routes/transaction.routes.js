@@ -247,7 +247,7 @@ router.patch('/:transactionId', auth, async (req, res, next) => {
         const {transactionId} = req.params;
         const { type, category, amount, date, comment, owner} = req.body;
         const updateResult = await updateTransaction(transactionId, type, category, amount, date, comment, owner);
-        if (updateResult.modifiedCount > 0) {
+        if (updateResult !== null) {
             await handleUserBalance(type, amount, owner);
             const transaction = await getTransactionById(transactionId);
             res.json({

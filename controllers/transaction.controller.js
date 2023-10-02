@@ -22,7 +22,7 @@ const deleteTransaction = async (transactionId) => {
 }
 
 const updateTransaction = async (transactionId, type, category, amount, date, comment, owner) => {
-    return Transaction.findOneAndReplace({id: transactionId},{type, category, amount, date, comment, owner});
+    return Transaction.findOneAndReplace({_id: transactionId},{type, category, amount, date, comment, owner});
 }
 
 const getTransactionById = async (transactionId) => {
