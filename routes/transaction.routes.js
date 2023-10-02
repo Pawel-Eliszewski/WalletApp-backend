@@ -242,17 +242,19 @@ router.get('/category/:transactionId', auth, async (req, res, next) => {
  *            description: Transaction not found or not updated.
  */
 
-router.patch('/', auth, async (req, res, next) => {
+router.patch('/:transactionId', auth, async (req, res, next) => {
     try {
-        const {transactionId, type, category, amount, date, comment, owner} = req.body;
+        const {transactionId} = req.params;
+        const { type, category, amount, date, comment, owner} = req.body;
         const updateResult = await updateTransaction(transactionId, type, category, amount, date, comment, owner);
-        if (updateResult) {
+        if (updateResult.modifiedCount > 0) {
             await handleUserBalance(type, amount, owner);
+            const transaction = await getTransactionById(transactionId);
             res.json({
                 status: 'Success',
                 code: 200,
                 message: 'Transaction updated successfully',
-                data: updateResult
+                data: transaction
             })
         } else {
             res.json({
