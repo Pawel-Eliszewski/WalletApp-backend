@@ -72,13 +72,7 @@ router.post('/', auth, async (req, res, next) => {
             res.json({
                 status: 'Success',
                 code: 200,
-                data: { _id: createdTransaction._id,
-                       type: createdTransaction.type,
-                       category: createdTransaction.category,
-                       amount: createdTransaction.amount,
-                       date: createdTransaction.date,
-                       comment: createdTransaction.comment,
-                       owner: createdTransaction.owner },
+                data: createdTransaction,
                 userBalance: balance
             })
         } else {
