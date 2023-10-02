@@ -10,8 +10,7 @@ const {
     registerUser,
     authenticateUser,
     setToken,
-    findUserById,
-    findUserByIdForTransaction
+    findUserById
 } = require("../controllers/user.controller")
 const {
     getUsersTransactions,
@@ -234,7 +233,7 @@ router.get('/logout', auth, async (req, res, next) => {
 router.get('/:userId/transactions', auth, async (req, res, next) => {
     try {
         const {userId} = req.query;
-        const user = await findUserByIdForTransaction(userId);
+        const user = await findUserById(userId);
         if (!user) {
             res.json({
                 status: 'Failure',
