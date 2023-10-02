@@ -1,15 +1,28 @@
 const Transaction = require('../schemas/transaction.schema');
 const mongoose = require("mongoose");
+const {getUserBalance, updateUserBalance} = require("./user.controller");
 const addTransaction = async (type, category, amount, date, comment, owner) => {
     return Transaction.create({type, category, amount, date, comment, owner});
 }
 
 const deleteTransaction = async (transactionId) => {
+    const transaction = await getTransactionById(transactionId);
+    const type = transaction.type;
+    const amount = transaction.amount;
+    const owner = transaction.owner;
+    let balance = await getUserBalance(owner);
+    if (type === 'income') {
+        balance -= amount;
+    }
+    if (type === 'expense') {
+        balance += amount;
+    }
+    await updateUserBalance(owner, balance);
     return Transaction.findOneAndDelete({_id: transactionId})
 }
 
 const updateTransaction = async (transactionId, type, category, amount, date, comment, owner) => {
-    return Transaction.updateOne({_id: transactionId},{type, category, amount, date, comment, owner});
+    return Transaction.findOneAndReplace({id: transactionId},{type, category, amount, date, comment, owner});
 }
 
 const getTransactionById = async (transactionId) => {
