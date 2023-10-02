@@ -22,7 +22,7 @@ const deleteTransaction = async (transactionId) => {
 }
 
 const updateTransaction = async (transactionId, type, category, amount, date, comment, owner) => {
-    return Transaction.findOneAndReplace({_id: transactionId},{type, category, amount, date, comment, owner});
+    return Transaction.findOneAndReplace({_id: transactionId}, {type, category, amount, date, comment, owner});
 }
 
 const getTransactionById = async (transactionId) => {
@@ -56,6 +56,20 @@ const getUserStatisticsByDate = async (userId, transactionsDate) => {
     return [transactionsFilteredByDate, sumOfIncome, sumOfExpense];
 }
 
+const getTransactionsAmountsDifference = async (transactionId, type, amount, owner) => {
+    const primaryTransaction = await getTransactionById(transactionId);
+    let balance = await getUserBalance(owner);
+    let difference = 0;
+    if (type === 'income') {
+        difference = amount - primaryTransaction.amount;
+    }
+    if (type === 'expense') {
+        difference = primaryTransaction.amount - amount;
+    }
+    balance += difference;
+    return balance;
+}
+
 module.exports = {
     addTransaction,
     getTransactionById,
@@ -63,4 +77,5 @@ module.exports = {
     getUserStatisticsByDate,
     updateTransaction,
     deleteTransaction,
+    getTransactionsAmountsDifference,
 }
