@@ -6,9 +6,10 @@ const {
     addTransaction,
     getTransactionById,
     updateTransaction,
-    deleteTransaction
+    deleteTransaction,
+    getTransactionsAmountsDifference
 } = require('../controllers/transaction.controller');
-const {handleUserBalance, getUserBalance} = require('../controllers/user.controller');
+const {handleUserBalance, getUserBalance, updateUserBalance, findUserById} = require('../controllers/user.controller');
 
 /**
  * @swagger
@@ -72,13 +73,15 @@ router.post('/', auth, async (req, res, next) => {
             res.json({
                 status: 'Success',
                 code: 200,
-                data: { _id: createdTransaction._id,
-                       type: createdTransaction.type,
-                       category: createdTransaction.category,
-                       amount: createdTransaction.amount,
-                       date: createdTransaction.date,
-                       comment: createdTransaction.comment,
-                       owner: createdTransaction.owner },
+                data: {
+                    _id: createdTransaction._id,
+                    type: createdTransaction.type,
+                    category: createdTransaction.category,
+                    amount: createdTransaction.amount,
+                    date: createdTransaction.date,
+                    comment: createdTransaction.comment,
+                    owner: createdTransaction.owner
+                },
                 userBalance: balance
             })
         } else {
@@ -121,11 +124,12 @@ router.delete('/:transactionId', auth, async (req, res, next) => {
         const {transactionId} = req.params;
         const transaction = await getTransactionById(transactionId);
         if (transaction) {
+            const user = await findUserById(transaction.owner);
             await deleteTransaction(transactionId);
             res.json({
                 status: 'OK',
                 code: 200,
-                data: { _id: transactionId },
+                data: {_id: transactionId, balance: user.balance},
                 message: 'Transaction deleted',
             })
         } else {
@@ -245,16 +249,19 @@ router.get('/category/:transactionId', auth, async (req, res, next) => {
 router.patch('/:transactionId', auth, async (req, res, next) => {
     try {
         const {transactionId} = req.params;
-        const { type, category, amount, date, comment, owner} = req.body;
+        const {type, category, amount, date, comment, owner} = req.body;
+        const fixedBalance = await getTransactionsAmountsDifference(transactionId, type, amount, owner);
         const updateResult = await updateTransaction(transactionId, type, category, amount, date, comment, owner);
         if (updateResult !== null) {
-            await handleUserBalance(type, amount, owner);
+            await updateUserBalance(owner, fixedBalance);
             const transaction = await getTransactionById(transactionId);
+            const user = await findUserById(owner);
             res.json({
                 status: 'Success',
                 code: 200,
                 message: 'Transaction updated successfully',
-                data: transaction
+                data: transaction,
+                balance: user.balance
             })
         } else {
             res.json({
