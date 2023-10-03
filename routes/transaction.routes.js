@@ -129,7 +129,8 @@ router.delete('/:transactionId', auth, async (req, res, next) => {
             res.json({
                 status: 'OK',
                 code: 200,
-                data: {_id: transactionId, balance: user.balance},
+                data: {_id: transactionId},
+                userBalance: user.balance,
                 message: 'Transaction deleted',
             })
         } else {
@@ -261,7 +262,7 @@ router.patch('/:transactionId', auth, async (req, res, next) => {
                 code: 200,
                 message: 'Transaction updated successfully',
                 data: transaction,
-                balance: user.balance
+                userBalance: user.balance
             })
         } else {
             res.json({
