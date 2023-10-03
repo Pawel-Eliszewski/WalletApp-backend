@@ -28,7 +28,7 @@ const swaggerOptions = {
                 '- `/user/{userId}/transactions` (GET): Get a list of transactions for a specific user.\n' +
                 '- `/user/current` (GET): Authenticates user, returns his data.\n' +
                 '- `/user/{userId}/statistics` (GET): Get financial statistics for a specific user and date range.\n' +
-                '- `/transaction` (POST, PATCH, GET): Add a new transaction, update an existing transaction, or get a specific transaction by ID.\n' +
+                '- `/transaction` (POST, PATCH, GET, DELETE): Add a new transaction, update an existing transaction, get a specific transaction by ID, or delete transaction.\n' +
                 '\n' +
                 '## Server Information\n' +
                 '\n' +

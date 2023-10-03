@@ -6,9 +6,10 @@ const {
     addTransaction,
     getTransactionById,
     updateTransaction,
-    deleteTransaction
+    deleteTransaction,
+    getTransactionsAmountsDifference
 } = require('../controllers/transaction.controller');
-const {handleUserBalance, getUserBalance} = require('../controllers/user.controller');
+const {handleUserBalance, getUserBalance, updateUserBalance, findUserById} = require('../controllers/user.controller');
 
 /**
  * @swagger
@@ -72,7 +73,15 @@ router.post('/', auth, async (req, res, next) => {
             res.json({
                 status: 'Success',
                 code: 200,
-                transactionID: createdTransaction._id,
+                data: {
+                    _id: createdTransaction._id,
+                    type: createdTransaction.type,
+                    category: createdTransaction.category,
+                    amount: createdTransaction.amount,
+                    date: createdTransaction.date,
+                    comment: createdTransaction.comment,
+                    owner: createdTransaction.owner
+                },
                 userBalance: balance
             })
         } else {
@@ -114,12 +123,16 @@ router.delete('/:transactionId', auth, async (req, res, next) => {
     try {
         const {transactionId} = req.params;
         const transaction = await getTransactionById(transactionId);
+        console.log(transaction);
         if (transaction) {
             await deleteTransaction(transactionId);
+            const user = await findUserById(transaction.owner);
             res.json({
                 status: 'OK',
                 code: 200,
-                message: 'Transaction deleted'
+                data: {_id: transactionId},
+                userBalance: user.balance,
+                message: 'Transaction deleted',
             })
         } else {
             res.json({
@@ -235,15 +248,22 @@ router.get('/category/:transactionId', auth, async (req, res, next) => {
  *            description: Transaction not found or not updated.
  */
 
-router.patch('/', auth, async (req, res, next) => {
+router.patch('/:transactionId', auth, async (req, res, next) => {
     try {
-        const {transactionId, type, category, amount, date, comment, owner} = req.body;
+        const {transactionId} = req.params;
+        const {type, category, amount, date, comment, owner} = req.body;
+        const fixedBalance = await getTransactionsAmountsDifference(transactionId, type, amount, owner);
         const updateResult = await updateTransaction(transactionId, type, category, amount, date, comment, owner);
-        if (updateResult.nModified > 0) {
+        if (updateResult !== null) {
+            await updateUserBalance(owner, fixedBalance);
+            const transaction = await getTransactionById(transactionId);
+            const user = await findUserById(owner);
             res.json({
                 status: 'Success',
                 code: 200,
-                message: 'Transaction updated successfully'
+                message: 'Transaction updated successfully',
+                data: transaction,
+                userBalance: user.balance
             })
         } else {
             res.json({

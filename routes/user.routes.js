@@ -10,7 +10,7 @@ const {
     registerUser,
     authenticateUser,
     setToken,
-    findUserById,
+    findUserById
 } = require("../controllers/user.controller")
 const {
     getUsersTransactions,

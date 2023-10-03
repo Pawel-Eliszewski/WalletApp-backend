@@ -3,11 +3,9 @@ const User = require('../schemas/user.schema');
 const findUserByEmail = async (email) => {
     return User.findOne({email});
 }
-
 const findUserById = async (userId) => {
     return User.findOne({_id: userId});
 }
-
 const registerUser = async (email, password) => {
     return User.create({email, password});
 }
@@ -39,6 +37,10 @@ const getUserBalance = async (owner) => {
     return user.balance;
 };
 
+const updateUserBalance = async(owner, balance) => {
+    return User.updateOne({_id: owner}, {balance: balance});
+}
+
 module.exports = {
     findUserByEmail,
     registerUser,
@@ -46,5 +48,6 @@ module.exports = {
     setToken,
     findUserById,
     handleUserBalance,
-    getUserBalance
+    getUserBalance,
+    updateUserBalance,
 }
