@@ -123,9 +123,10 @@ router.delete('/:transactionId', auth, async (req, res, next) => {
     try {
         const {transactionId} = req.params;
         const transaction = await getTransactionById(transactionId);
+        console.log(transaction);
         if (transaction) {
-            const user = await findUserById(transaction.owner);
             await deleteTransaction(transactionId);
+            const user = await findUserById(transaction.owner);
             res.json({
                 status: 'OK',
                 code: 200,
