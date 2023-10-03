@@ -7,6 +7,10 @@ const addTransaction = async (type, category, amount, date, comment, owner) => {
 
 const deleteTransaction = async (transactionId) => {
     const transaction = await getTransactionById(transactionId);
+    if (!transaction) {
+        throw new Error('Transaction does not exist');
+    }
+    await Transaction.findOneAndDelete({ _id: transactionId });
     const type = transaction.type;
     const amount = transaction.amount;
     const owner = transaction.owner;
@@ -18,7 +22,6 @@ const deleteTransaction = async (transactionId) => {
         balance += amount;
     }
     await updateUserBalance(owner, balance);
-    return Transaction.findOneAndDelete({_id: transactionId})
 }
 
 const updateTransaction = async (transactionId, type, category, amount, date, comment, owner) => {
