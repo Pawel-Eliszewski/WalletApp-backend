@@ -16,7 +16,7 @@ const TransactionSchema = new Schema({
     },
     date: {
         type: Date,
-        required: [true, 'Date is required'],
+        default: null,
     },
     comment: {
         type: String,
